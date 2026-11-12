@@ -1910,6 +1910,12 @@ function claimsRulesetDice(tag: SkillCheckTag): boolean {
   );
 }
 
+/** What a claim keeps, beside its dice, wherever it is written back as an ask: the system it named,
+ *  so nothing later rolls another system's check as a d20. Every write-back in the tag pass uses it. */
+function claimedSystem(tag: SkillCheckTag): { declaredResolution?: string } {
+  return claimsRulesetDice(tag) && tag.declaredResolution ? { declaredResolution: tag.declaredResolution } : {};
+}
+
 /** Whether a complete tag's numbers are the ones this ruleset and this sheet would have produced.
  *  A GM that writes its own modifier has not rolled the character's check, however tidy the sum. */
 function rulesetVouchesFor(ruleset: SkillCheckRulesetContext, tag: SkillCheckTag): boolean {
@@ -2661,9 +2667,7 @@ export async function resolveSkillCheckTagsInContent(
                 disadvantage: tag.disadvantage,
                 // The "0dN" of a record that claims no roll labels no dice anybody would throw.
                 declaredDice: claimsNoRoll ? undefined : tag.declaredDice,
-                ...(claimsRulesetDice(tag) && tag.declaredResolution
-                  ? { declaredResolution: tag.declaredResolution }
-                  : {}),
+                ...claimedSystem(tag),
               },
               askExtras(tag),
             ),
@@ -2737,6 +2741,7 @@ export async function resolveSkillCheckTagsInContent(
             advantage: request.advantage,
             disadvantage: request.disadvantage,
             declaredDice: entry.tag.declaredDice,
+            ...claimedSystem(entry.tag),
           },
           { ...(askExtras(entry.tag) ?? {}), reason: "unknown-roller" },
         );
@@ -2750,6 +2755,7 @@ export async function resolveSkillCheckTagsInContent(
             advantage: request.advantage,
             disadvantage: request.disadvantage,
             declaredDice: entry.tag.declaredDice,
+            ...claimedSystem(entry.tag),
           },
           { ...(askExtras(entry.tag) ?? {}), reason: "untrained" },
         );
@@ -2762,6 +2768,7 @@ export async function resolveSkillCheckTagsInContent(
             advantage: request.advantage,
             disadvantage: request.disadvantage,
             declaredDice: entry.tag.declaredDice,
+            ...claimedSystem(entry.tag),
           },
           askExtras(entry.tag),
         );
@@ -2789,6 +2796,7 @@ export async function resolveSkillCheckTagsInContent(
             advantage: request.advantage,
             disadvantage: request.disadvantage,
             declaredDice: entry.tag.declaredDice,
+            ...claimedSystem(entry.tag),
           },
           askExtras(entry.tag),
         );
@@ -2862,11 +2870,7 @@ export async function resolveSkillCheckTagsInContent(
           disadvantage: entry.request.disadvantage,
           preRolledD20: entry.request.preRolledD20,
           declaredDice: entry.tag.declaredDice,
-          // A claim cut back to its ask keeps the system it named with its dice, here as at the other
-          // two places one is cut back, so nothing rolls another system's check as a d20 later.
-          ...(claimsRulesetDice(entry.tag) && entry.tag.declaredResolution
-            ? { declaredResolution: entry.tag.declaredResolution }
-            : {}),
+          ...claimedSystem(entry.tag),
         },
         askExtras(entry.tag),
       ),
