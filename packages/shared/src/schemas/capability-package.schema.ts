@@ -1613,7 +1613,10 @@ const capabilityPackageManifestBaseSchema = z
 //        push of the last roll (`resolution.push`, asked for with `push="true"`): the Year Zero Engine's base,
 //        skill and gear dice. Not a soft seam: an Engine that cannot read them refuses the whole ruleset
 //        file. No permission.
-export const supportedCapabilityApi = Object.freeze({ major: 1, minor: 826 } as const);
+// 1.827: how a live pool or plain track is drawn (`display: "bar"` or `"dots"`): a fill bar or a row of
+//        dots beside its number on the sheet. Not a soft seam: an Engine that cannot read it refuses the
+//        whole ruleset file. No permission.
+export const supportedCapabilityApi = Object.freeze({ major: 1, minor: 827 } as const);
 
 const capabilityApiVersionSchema = z
   .object({
